@@ -1,14 +1,15 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const OpenAI = require("openai");
 const Profile = require("../models/Profile");
 const Expense = require("../models/Expense");
 
 const router = express.Router();
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
 // Auth middleware (robust)
 function auth(req, res, next) {
@@ -56,13 +57,17 @@ Give specific advice for their content type.
 Do not use markdown formatting like bolding or headers, just plain text with clear spacing.
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You help creators manage money wisely." },
+        { role: "user", content: prompt }
+      ]
+    });
 
-    res.json({ plan: text });
+    res.json({ plan: response.choices[0].message.content });
   } catch (err) {
-    console.error("Gemini Error:", err);
+    console.error("OpenAI Error:", err);
     res.status(500).json({ error: "AI Service Unavailable" });
   }
 });
@@ -98,13 +103,17 @@ Avoid fear-based language.
 Explain reasoning simply.
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You help creators make mindful financial decisions." },
+        { role: "user", content: prompt }
+      ]
+    });
 
-    res.json({ reply: text });
+    res.json({ reply: response.choices[0].message.content });
   } catch (err) {
-    console.error("Gemini Chat Error:", err);
+    console.error("OpenAI Chat Error:", err);
     res.status(500).json({ error: "AI Service Unavailable" });
   }
 });
