@@ -30,7 +30,7 @@ router.post("/", auth, async (req, res) => {
   try {
     const profile = await Profile.findOneAndUpdate(
       { userId: req.userId },
-      { userId: req.userId, ...req.body },
+      { $set: { userId: req.userId, ...req.body } },
       { upsert: true, new: true }
     );
     res.json(profile);
