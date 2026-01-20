@@ -51,15 +51,20 @@ router.get("/", auth, async (req, res) => {
     const weeklyTotals = {};
 
     expenses.forEach(exp => {
-      const weekNumber = Math.ceil(new Date(exp.date).getDate() / 7);
+      const date = new Date(exp.date);
+      // Get week of month (0-4)
+      const dayOfMonth = date.getDate();
+      const weekNumber = Math.ceil(dayOfMonth / 7);
+
       const weekLabel = `Week ${weekNumber}`;
-      weeklyTotals[weekLabel] =
-        (weeklyTotals[weekLabel] || 0) + exp.amount;
+      weeklyTotals[weekLabel] = (weeklyTotals[weekLabel] || 0) + exp.amount;
     });
 
-    const weeklyTrend = Object.keys(weeklyTotals).map(week => ({
+    // Ensure all 4 weeks exist for cleaner graph
+    const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
+    const weeklyTrend = weeks.map(week => ({
       week,
-      total: weeklyTotals[week]
+      total: weeklyTotals[week] || 0
     }));
 
     res.json({ expenses, weeklyTrend });

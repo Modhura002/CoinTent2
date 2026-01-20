@@ -1,20 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function ExpenseTracker() {
   const [expenses, setExpenses] = useState([]);
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
 
-  function addExpense() {
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+
+  async function fetchExpenses() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/expenses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setExpenses(data.expenses || []);
+    } catch (err) {
+      console.error("Error fetching expenses", err);
+    }
+  }
+
+  async function addExpense() {
     if (!amount || !category) return;
+    const token = localStorage.getItem("token");
 
-    setExpenses([
-      ...expenses,
-      { amount: Number(amount), category },
-    ]);
+    try {
+      const res = await fetch("http://localhost:5000/expenses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount: Number(amount), category }),
+      });
 
-    setAmount("");
-    setCategory("");
+      const newExpense = await res.json();
+
+      setExpenses([...expenses, newExpense]);
+      setAmount("");
+      setCategory("");
+    } catch (err) {
+      console.error("Error adding expense", err);
+    }
   }
 
   return (

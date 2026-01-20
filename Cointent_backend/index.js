@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]); // Force Google DNS to resolve SRV records
+
 require("dotenv").config();
 
 const app = express();
@@ -25,9 +28,15 @@ app.use("/ai", aiRoutes);
 
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000, // Fail fast if connection is down
+    family: 4 // Force IPv4
+  })
   .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+  .catch(err => {
+    console.error("MongoDB connection error:", err);
+    console.error("Cause:", err.cause); // Log cause if available
+  });
 
 app.get("/", (req, res) => {
   res.send("CoinTent backend is running");
