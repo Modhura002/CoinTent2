@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Layout from "../components/layout/Layout";
 import { motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const insights = [
   "Your spending pattern this month shows a healthy balance between growth and control.",
@@ -65,7 +67,17 @@ function Insights({ user, onLogout }) {
                 borderRadius: "12px",
                 maxWidth: "70%"
               }}>
-                {msg.content}
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    table: ({node, ...props}) => <table style={{ borderCollapse: "collapse", width: "100%", margin: "10px 0" }} {...props} />,
+                    th: ({node, ...props}) => <th style={{ border: "1px solid #555", padding: "8px", background: "#444" }} {...props} />,
+                    td: ({node, ...props}) => <td style={{ border: "1px solid #555", padding: "8px" }} {...props} />,
+                    p: ({node, ...props}) => <p style={{ margin: 0, color: "inherit" }} {...props} />
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
               </div>
             ))}
             {loading && <div style={{ color: "#888", fontStyle: "italic" }}>Thinking...</div>}
@@ -76,7 +88,7 @@ function Insights({ user, onLogout }) {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Ask about your finances..."
-              style={{ flex: 1 }}
+              style={{ flex: 1, color: "#fff", background: "#333", border: "1px solid #555", borderRadius: "8px", padding: "8px 12px" }}
             />
             <button type="submit" disabled={loading}>Send</button>
           </form>

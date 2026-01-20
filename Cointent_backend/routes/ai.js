@@ -54,7 +54,7 @@ Total spent so far this month: ${totalSpent}
 Give a detailed monthly budget plan to hit the target of ${targetBudget}.
 Break down costs into percentages and categories.
 Give specific advice for their content type.
-Do not use markdown formatting like bolding or headers, just plain text with clear spacing.
+Use Markdown formatting (headers, bolding, lists) to structure the plan clearly.
 `;
 
     const response = await openai.chat.completions.create({
@@ -101,6 +101,7 @@ User question:
 Give a clear, practical answer.
 Avoid fear-based language.
 Explain reasoning simply.
+Use Markdown formatting (bullet points, bold text) to make it easy to read.
 `;
 
     const response = await openai.chat.completions.create({
