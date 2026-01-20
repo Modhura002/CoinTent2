@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap');
+
+:root {
+  --black: #0f0f0f;
+  --surface: #171717;
+  --beige: #e6d3b1;
+  --beige-soft: #c7a17a;
+  --border: #262626;
+  --text-muted: #a3a3a3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, var(--black), #121212);
+  color: #f5f5f5;
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+}
+
+p {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.card {
+  background: linear-gradient(180deg, var(--surface), #141414);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  width: 40px;
+  height: 2px;
+  background: var(--beige-soft);
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  background: #0b0b0b;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: #f5f5f5;
+}
+
+button {
+  padding: 12px 20px;
+  background: var(--beige-soft);
+  color: var(--black);
+  border: none;
+  border-radius: 999px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}

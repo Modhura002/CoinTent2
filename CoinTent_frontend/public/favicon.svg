@@ -1,0 +1,15 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Coin background -->
+  <circle cx="32" cy="32" r="30" fill="#c7a17a"/>
+
+  <!-- Letter C -->
+  <text
+    x="22"
+    y="42"
+    font-size="32"
+    font-family="Playfair Display, serif"
+    fill="#0f0f0f"
+  >
+    C
+  </text>
+</svg>

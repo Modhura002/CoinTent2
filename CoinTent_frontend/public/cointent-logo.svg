@@ -1,0 +1,27 @@
+<svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Coin -->
+  <circle cx="20" cy="20" r="18" fill="#c7a17a"/>
+
+  <!-- Letter C -->
+  <text
+    x="12"
+    y="27"
+    font-size="22"
+    font-family="Playfair Display, serif"
+    fill="#0f0f0f"
+  >
+    C
+  </text>
+
+  <!-- Brand Name -->
+  <text
+    x="55"
+    y="27"
+    font-size="22"
+    font-family="Playfair Display, serif"
+    fill="#e6d3b1"
+    letter-spacing="0.5"
+  >
+    CoinTent
+  </text>
+</svg>
