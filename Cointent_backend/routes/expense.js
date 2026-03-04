@@ -46,13 +46,22 @@ router.post("/", auth, async (req, res) => {
 // GET EXPENSES + WEEKLY GRAPH DATA
 router.get("/", auth, async (req, res) => {
   try {
-    const expenses = await Expense.find({ userId: req.userId });
+    const allExpenses = await Expense.find({ userId: req.userId });
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Filter for current month only
+    const expenses = allExpenses.filter(exp => {
+      const d = new Date(exp.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
 
     const weeklyTotals = {};
 
     expenses.forEach(exp => {
       const date = new Date(exp.date);
-      // Get week of month (0-4)
       const dayOfMonth = date.getDate();
       const weekNumber = Math.ceil(dayOfMonth / 7);
 
@@ -60,14 +69,20 @@ router.get("/", auth, async (req, res) => {
       weeklyTotals[weekLabel] = (weeklyTotals[weekLabel] || 0) + exp.amount;
     });
 
-    // Ensure all 4 weeks exist for cleaner graph
-    const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
+    // Ensure all possible weeks for the current month (1-5) are represented
+    const weeks = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"];
     const weeklyTrend = weeks.map(week => ({
       week,
       total: weeklyTotals[week] || 0
     }));
 
-    res.json({ expenses, weeklyTrend });
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = monthNames[currentMonth];
+
+    res.json({ expenses, weeklyTrend, monthName });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

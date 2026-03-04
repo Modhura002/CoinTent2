@@ -17,9 +17,8 @@ const data = [
 
 function ExpenseGraph() {
   const [trendData, setTrendData] = useState([]);
+  const [monthName, setMonthName] = useState("");
 
-  // Fetch trend on mount and every 5 seconds to stay updated
-  // (In a real app, we'd lift state up, but this works for now)
   useEffect(() => {
     fetchTrend();
     const interval = setInterval(fetchTrend, 5000);
@@ -36,6 +35,7 @@ function ExpenseGraph() {
       });
       const data = await res.json();
       setTrendData(data.weeklyTrend || []);
+      setMonthName(data.monthName || "");
     } catch (err) {
       console.error("Error fetching trend data", err);
     }
@@ -43,19 +43,20 @@ function ExpenseGraph() {
 
   return (
     <div className="card" style={{ marginTop: "40px" }}>
-      <h3>Weekly Expense Trend</h3>
+      <h3>Weekly Expense Trend {monthName ? `- ${monthName}` : ""}</h3>
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={trendData}>
           <XAxis dataKey="week" stroke="#a3a3a3" />
           <YAxis stroke="#a3a3a3" />
-          <Tooltip />
+          <Tooltip contentStyle={{ backgroundColor: "#333", border: "none", borderRadius: "8px", color: "#fff" }} />
           <Line
             type="monotone"
             dataKey="total"
             stroke="#c7a17a"
             strokeWidth={3}
-            dot={{ r: 4 }}
+            dot={{ r: 4, fill: "#c7a17a" }}
+            activeDot={{ r: 6 }}
             animationDuration={900}
           />
         </LineChart>
