@@ -1,17 +1,16 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Profile = require("../models/Profile");
 const Expense = require("../models/Expense");
 
 const router = express.Router();
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-// Auth middleware (robust)
+// Auth middleware
 function auth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -35,8 +34,16 @@ function auth(req, res, next) {
 router.post("/planner", auth, async (req, res) => {
   try {
     const { targetBudget } = req.body;
-    const profile = await Profile.findOne({ userId: req.userId });
-    const expenses = await Expense.find({ userId: req.userId });
+
+    // Try to get profile/expenses from DB, gracefully handle if DB is down
+    let profile = null;
+    let expenses = [];
+    try {
+      profile = await Profile.findOne({ userId: req.userId });
+      expenses = await Expense.find({ userId: req.userId });
+    } catch (dbErr) {
+      console.warn("DB unavailable for planner, proceeding without user data:", dbErr.message);
+    }
 
     const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
 
@@ -57,17 +64,12 @@ Give specific advice for their content type.
 Use Markdown formatting (headers, bolding, lists) to structure the plan clearly.
 `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You help creators manage money wisely." },
-        { role: "user", content: prompt }
-      ]
-    });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
-    res.json({ plan: response.choices[0].message.content });
+    res.json({ plan: text });
   } catch (err) {
-    console.error("OpenAI Error:", err);
+    console.error("Gemini Planner Error:", err);
     res.status(500).json({ error: "AI Service Unavailable" });
   }
 });
@@ -81,8 +83,15 @@ router.post("/chat", auth, async (req, res) => {
       return res.status(400).json({ message: "Message is required" });
     }
 
-    const profile = await Profile.findOne({ userId: req.userId });
-    const expenses = await Expense.find({ userId: req.userId });
+    // Try to get profile/expenses from DB, gracefully handle if DB is down
+    let profile = null;
+    let expenses = [];
+    try {
+      profile = await Profile.findOne({ userId: req.userId });
+      expenses = await Expense.find({ userId: req.userId });
+    } catch (dbErr) {
+      console.warn("DB unavailable for AI chat, proceeding without user data:", dbErr.message);
+    }
 
     const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
 
@@ -104,20 +113,14 @@ Explain reasoning simply.
 Use Markdown formatting (bullet points, bold text) to make it easy to read.
 `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You help creators make mindful financial decisions." },
-        { role: "user", content: prompt }
-      ]
-    });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
-    res.json({ reply: response.choices[0].message.content });
+    res.json({ reply: text });
   } catch (err) {
-    console.error("OpenAI Chat Error:", err);
+    console.error("Gemini Chat Error:", err);
     res.status(500).json({ error: "AI Service Unavailable" });
   }
 });
-
 
 module.exports = router;
